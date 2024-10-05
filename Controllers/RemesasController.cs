@@ -34,7 +34,18 @@ namespace PARCIAL.Controllers
             if (ModelState.IsValid)
             {
                 remesa.TasaCambio = await _currencyService.GetExchangeRateAsync(remesa.TipoMoneda, remesa.TipoMoneda == "USD" ? "BTC" : "USD");
-                remesa.MontoFinal = remesa.MontoEnviado * (remesa.TipoMoneda == "USD" ? remesa.TasaCambio : 1 / remesa.TasaCambio);
+
+                // Corregimos el cálculo del MontoFinal
+                if (remesa.TipoMoneda == "USD")
+                {
+                    // USD a BTC: multiplicamos por la tasa (que será un número pequeño)
+                    remesa.MontoFinal = remesa.MontoEnviado / remesa.TasaCambio;
+                }
+                else // BTC
+                {
+                    // BTC a USD: multiplicamos por la tasa (que será un número grande)
+                    remesa.MontoFinal = remesa.MontoEnviado * remesa.TasaCambio;
+                }
 
                 _context.DataRemesas.Add(remesa);
                 await _context.SaveChangesAsync();
