@@ -1,0 +1,114 @@
+@model IEnumerable<PARCIAL.Models.Remesas>
+
+@{
+    ViewData["Title"] = "Listado de Transacciones";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
+
+<h2 class="text-center my-4">Listado de Transacciones</h2>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle table-bordered shadow-lg rounded">
+        <thead class="thead-dark bg-primary text-white">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Nombre Remitente</th>
+                <th scope="col">Nombre Destinatario</th>
+                <th scope="col">País Origen</th>
+                <th scope="col">País Destino</th>
+                <th scope="col">Monto Enviado</th>
+                <th scope="col">Tipo de Moneda</th>
+                <th scope="col">Tasa de Cambio</th>
+                <th scope="col">Monto Final</th>
+                <th scope="col">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var remesa in Model)
+            {
+                <tr>
+                    <td>@remesa.Id</td>
+                    <td>@remesa.NombreRemitente</td>
+                    <td>@remesa.NombreDestinario</td>
+                    <td>@remesa.PaisOrigen</td>
+                    <td>@remesa.PaisDestino</td>
+                    <td>@remesa.MontoEnviado</td>
+                    <td>@remesa.TipoMoneda</td>
+                    <td>@remesa.TasaCambio</td>
+                    <td>@remesa.MontoFinal</td>
+                    <td>
+                        <span class="badge 
+                              @if(remesa.Estado.Equals("COMPLETADO", StringComparison.OrdinalIgnoreCase)) 
+                                { 
+                                    <text>bg-danger</text> 
+                                } 
+                                else 
+                                { 
+                                    <text>bg-warning</text> 
+                                }">
+                            @remesa.Estado
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    h2 {
+        font-weight: 700;
+        color: #343a40;
+    }
+
+    .table {
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table thead {
+        border-bottom: 2px solid #007bff;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .table th,
+    .table td {
+        padding: 15px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .badge {
+        font-size: 1rem;
+        padding: 10px 20px;
+        border-radius: 20px;
+    }
+
+    .badge.bg-warning {
+        background-color: #ffc107 !important;
+    }
+
+    .badge.bg-danger {
+        background-color: #dc3545 !important;
+    }
+
+    .table-responsive {
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table-hover tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .table-hover tbody tr:hover {
+        transform: scale(1.01);
+        background-color: #f8f9fa !important;
+    }
+</style>

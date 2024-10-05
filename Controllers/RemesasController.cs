@@ -17,10 +17,17 @@ namespace PARCIAL.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet("")]
         public IActionResult Index()
         {
             return View();
+        }
+
+        [HttpGet("Listado")]
+        public IActionResult Listado()
+        {
+            var remesas = _context.DataRemesas.ToList();
+            return View(remesas);
         }
 
         [HttpPost]
@@ -28,15 +35,20 @@ namespace PARCIAL.Controllers
         {
             if (ModelState.IsValid)
             {
+
+                remesa.MontoFinal = remesa.MontoEnviado * remesa.TasaCambio;
+
                 _context.DataRemesas.Add(remesa);
                 _context.SaveChanges();
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Listado");
             }
 
             return View("Index", remesa);
         }
 
+
+        [HttpGet("Error")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
