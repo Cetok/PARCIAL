@@ -1,29 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using PARCIAL.Data;
 using PARCIAL.Models;
+using PARCIAL.Services;
+using System.Threading.Tasks;
 
 namespace PARCIAL.Controllers
 {
-    [Route("[controller]")]
     public class RemesasController : Controller
     {
-        private readonly ILogger<RemesasController> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly ICurrencyConversionService _currencyService;
 
-        public RemesasController(ILogger<RemesasController> logger, ApplicationDbContext context)
+        public RemesasController(ApplicationDbContext context, ICurrencyConversionService currencyService)
         {
-            _logger = logger;
             _context = context;
+            _currencyService = currencyService;
         }
 
-        [HttpGet("")]
         public IActionResult Index()
         {
             return View();
         }
 
-        [HttpGet("Listado")]
         public IActionResult Listado()
         {
             var remesas = _context.DataRemesas.ToList();
@@ -31,28 +29,19 @@ namespace PARCIAL.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Remesas remesa)
+        public async Task<IActionResult> Create(Remesas remesa)
         {
             if (ModelState.IsValid)
             {
-
-                remesa.MontoFinal = remesa.MontoEnviado * remesa.TasaCambio;
+                remesa.TasaCambio = await _currencyService.GetExchangeRateAsync(remesa.TipoMoneda, remesa.TipoMoneda == "USD" ? "BTC" : "USD");
+                remesa.MontoFinal = remesa.MontoEnviado * (remesa.TipoMoneda == "USD" ? remesa.TasaCambio : 1 / remesa.TasaCambio);
 
                 _context.DataRemesas.Add(remesa);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
-                return RedirectToAction("Listado");
+                return RedirectToAction(nameof(Listado));
             }
-
             return View("Index", remesa);
-        }
-
-
-        [HttpGet("Error")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View("Error!");
         }
     }
 }
