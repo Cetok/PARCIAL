@@ -117,18 +117,16 @@
                             <span asp-validation-for="MontoEnviado" class="text-danger"></span>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label for="TipoMoneda">Tipo de Moneda (USD o BTC)</label>
-                            <input type="text" asp-for="TipoMoneda" class="form-control" placeholder="USD o BTC" />
+                        <div class="form-group">
+                            <label asp-for="TipoMoneda">Tipo de Moneda</label>
+                            <select asp-for="TipoMoneda" class="form-control">
+                                <option value="USD">USD</option>
+                                <option value="BTC">BTC</option>
+                            </select>
                             <span asp-validation-for="TipoMoneda" class="text-danger"></span>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label for="TasaCambio">Tasa de Cambio</label>
-                            <input type="number" asp-for="TasaCambio" class="form-control" step="0.01"
-                                placeholder="Tasa de cambio" />
-                            <span asp-validation-for="TasaCambio" class="text-danger"></span>
-                        </div>
+                    
                         <div class="form-group mb-3">
                             <label for="Estado">Estado de la Transacción</label>
                             <input type="text" asp-for="Estado" class="form-control"

@@ -1,29 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using PARCIAL.Data;
 using PARCIAL.Models;
+using PARCIAL.Services;
+using System.Threading.Tasks;
 
 namespace PARCIAL.Controllers
 {
-    [Route("[controller]")]
     public class RemesasController : Controller
     {
-        private readonly ILogger<RemesasController> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly ICurrencyConversionService _currencyService;
 
-        public RemesasController(ILogger<RemesasController> logger, ApplicationDbContext context)
+        public RemesasController(ApplicationDbContext context, ICurrencyConversionService currencyService)
         {
-            _logger = logger;
             _context = context;
+            _currencyService = currencyService;
         }
 
-        [HttpGet("")]
         public IActionResult Index()
         {
             return View();
         }
 
-        [HttpGet("Listado")]
         public IActionResult Listado()
         {
             var remesas = _context.DataRemesas.ToList();
@@ -31,28 +29,30 @@ namespace PARCIAL.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Remesas remesa)
+        public async Task<IActionResult> Create(Remesas remesa)
         {
             if (ModelState.IsValid)
             {
+                remesa.TasaCambio = await _currencyService.GetExchangeRateAsync(remesa.TipoMoneda, remesa.TipoMoneda == "USD" ? "BTC" : "USD");
 
-                remesa.MontoFinal = remesa.MontoEnviado * remesa.TasaCambio;
+                // Corregimos el cálculo del MontoFinal
+                if (remesa.TipoMoneda == "USD")
+                {
+                    // USD a BTC: multiplicamos por la tasa (que será un número pequeño)
+                    remesa.MontoFinal = remesa.MontoEnviado / remesa.TasaCambio;
+                }
+                else // BTC
+                {
+                    // BTC a USD: multiplicamos por la tasa (que será un número grande)
+                    remesa.MontoFinal = remesa.MontoEnviado * remesa.TasaCambio;
+                }
 
                 _context.DataRemesas.Add(remesa);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
-                return RedirectToAction("Listado");
+                return RedirectToAction(nameof(Listado));
             }
-
             return View("Index", remesa);
-        }
-
-
-        [HttpGet("Error")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View("Error!");
         }
     }
 }
