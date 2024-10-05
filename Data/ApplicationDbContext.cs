@@ -9,4 +9,5 @@ public class ApplicationDbContext : IdentityDbContext
         : base(options)
     {
     }
+    public DbSet<PARCIAL.Models.Remesas> DataRemesas { get;set;}
 }
